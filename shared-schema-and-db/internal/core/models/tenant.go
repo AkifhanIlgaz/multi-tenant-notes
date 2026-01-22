@@ -1,10 +1,10 @@
 package models
 
-type TenantModel struct {
+type Tenant struct {
 	Id   int    `gorm:"primaryKey;autoIncrement"`
 	Name string `gorm:"not null;uniqueIndex:idx_tenant_name"`
 }
 
-func (TenantModel) TableName() string {
+func (Tenant) TableName() string {
 	return "tenants"
 }

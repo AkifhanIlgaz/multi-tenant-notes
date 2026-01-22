@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/dto"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/entity"
+
+	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/models"
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/ports"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -23,21 +24,21 @@ func NewAuthService(userRepo ports.UserRepository) *AuthService {
 	}
 }
 
-func (s *AuthService) Login(email, password string) (entity.User, error) {
+func (s *AuthService) Login(email, password string) (models.User, error) {
 	user, err := s.userRepo.GetUserByEmailAndPassword(email, password)
 	if err != nil {
-		return entity.User{}, errors.New("invalid credentials")
+		return models.User{}, errors.New("invalid credentials")
 	}
 
 	// normalde hashli password ile kontrol edilecek
 	if user.Password != password {
-		return entity.User{}, errors.New("invalid credentials")
+		return models.User{}, errors.New("invalid credentials")
 	}
 
 	return user, nil
 }
 
-func (s *AuthService) GenerateToken(user entity.User) (string, error) {
+func (s *AuthService) GenerateToken(user models.User) (string, error) {
 	claims := dto.JWTClaims{
 		UserID:   user.Id,
 		TenantID: user.TenantId,
@@ -51,8 +52,8 @@ func (s *AuthService) GenerateToken(user entity.User) (string, error) {
 	return token.SignedString([]byte(JWT_SECRET))
 }
 
-func (s *AuthService) ValidateToken(tokenString string) (*dto.JWTClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &dto.JWTClaims{}, func(token *jwt.Token) (any, error) {
+func (s *AuthService) ValidateToken(tokenString string) (models.JWTClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &models.JWTClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid token")
 		}
@@ -60,12 +61,14 @@ func (s *AuthService) ValidateToken(tokenString string) (*dto.JWTClaims, error) 
 	})
 
 	if err != nil {
-		return nil, err
+		return models.JWTClaims{}, err
 	}
 
-	if claims, ok := token.Claims.(*dto.JWTClaims); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(models.JWTClaims)
+	if !ok || !token.Valid {
+		return models.JWTClaims{}, errors.New("invalid token")
 	}
 
-	return nil, errors.New("invalid token")
+	return claims, nil
+
 }

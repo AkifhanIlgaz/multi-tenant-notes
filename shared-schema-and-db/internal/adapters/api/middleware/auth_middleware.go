@@ -19,7 +19,6 @@ func NewAuthMiddleware(authService *service.AuthService) *AuthMiddleware {
 
 func (m *AuthMiddleware) JWTMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		// Get Authorization header
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -27,7 +26,6 @@ func (m *AuthMiddleware) JWTMiddleware() fiber.Handler {
 			})
 		}
 
-		// Check Bearer scheme
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -37,7 +35,6 @@ func (m *AuthMiddleware) JWTMiddleware() fiber.Handler {
 
 		tokenString := parts[1]
 
-		// Parse and validate token
 		claims, err := m.authService.ValidateToken(tokenString)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

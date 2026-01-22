@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db/models"
+	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/models"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ import (
 
 func SeedDatabase(db *gorm.DB) error {
 	// Tenant'ları oluştur
-	tenants := []models.TenantModel{
+	tenants := []models.Tenant{
 		{Name: "Acme Corp"},
 		{Name: "TechStart Inc"},
 		{Name: "Global Solutions"},
@@ -45,14 +45,14 @@ func SeedDatabase(db *gorm.DB) error {
 	return nil
 }
 
-func createUsersForTenant(db *gorm.DB, tenant models.TenantModel) []models.UserModel {
+func createUsersForTenant(db *gorm.DB, tenant models.Tenant) []models.User {
 	userNames := []string{"john.doe", "jane.smith", "alex.wilson"}
-	users := make([]models.UserModel, 0, len(userNames))
+	users := make([]models.User, 0, len(userNames))
 
 	for _, userName := range userNames {
 		email := fmt.Sprintf("%s@%s.com", userName, slugify(tenant.Name))
 
-		user := models.UserModel{
+		user := models.User{
 			Email:    email,
 			Password: "password123", // Demo için plain text
 			Name:     usernameToName(userName),
@@ -68,12 +68,12 @@ func createUsersForTenant(db *gorm.DB, tenant models.TenantModel) []models.UserM
 	return users
 }
 
-func createAnnouncementsForTenant(tenant models.TenantModel, users []models.UserModel) []models.AnnouncementModel {
-	var announcements []models.AnnouncementModel
+func createAnnouncementsForTenant(tenant models.Tenant, users []models.User) []models.Announcement {
+	var announcements []models.Announcement
 
 	switch tenant.Name {
 	case "Acme Corp":
-		announcements = []models.AnnouncementModel{
+		announcements = []models.Announcement{
 			{
 				Title:     "Welcome to Acme Corp!",
 				Content:   "We're thrilled to welcome all team members to Acme Corp. Our mission is to deliver innovative solutions that transform businesses. Let's make this quarter our best one yet!",
@@ -98,7 +98,7 @@ func createAnnouncementsForTenant(tenant models.TenantModel, users []models.User
 		}
 
 	case "TechStart Inc":
-		announcements = []models.AnnouncementModel{
+		announcements = []models.Announcement{
 			{
 				Title:     "TechStart Inc Holiday Schedule",
 				Content:   "Our offices will be closed from December 24th through January 2nd for the holiday season. Emergency support will be available via email. Wishing everyone a wonderful holiday!",
@@ -123,7 +123,7 @@ func createAnnouncementsForTenant(tenant models.TenantModel, users []models.User
 		}
 
 	case "Global Solutions":
-		announcements = []models.AnnouncementModel{
+		announcements = []models.Announcement{
 			{
 				Title:     "Global Solutions Expands to Three New Markets",
 				Content:   "We're proud to announce our expansion into Asia, South America, and Africa! This milestone represents years of hard work and dedication. Thank you to everyone who made this possible.",

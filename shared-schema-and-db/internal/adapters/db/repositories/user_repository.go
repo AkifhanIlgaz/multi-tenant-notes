@@ -1,9 +1,7 @@
 package repositories
 
 import (
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db/mappers"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db/models"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/entity"
+	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/models"
 	"gorm.io/gorm"
 )
 
@@ -15,20 +13,20 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) GetUserByEmailAndPassword(email string, password string) (entity.User, error) {
-	user := models.UserModel{}
+func (r *userRepository) GetUserByEmailAndPassword(email string, password string) (models.User, error) {
+	user := models.User{}
 	if err := r.db.Where("email = ? AND password = ?", email, password).First(&user).Error; err != nil {
-		return entity.User{}, err
+		return models.User{}, err
 	}
 
-	return mappers.ToUserEntity(user), nil
+	return user, nil
 }
 
-func (r *userRepository) GetUsersByTenantId(tenantId int) ([]entity.User, error) {
-	users := []models.UserModel{}
+func (r *userRepository) GetUsersByTenantId(tenantId int) ([]models.User, error) {
+	users := []models.User{}
 	if err := r.db.Where("tenant_id = ?", tenantId).Find(&users).Error; err != nil {
 		return nil, err
 	}
 
-	return mappers.ToUserEntities(users), nil
+	return users, nil
 }
