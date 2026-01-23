@@ -14,9 +14,9 @@ import (
 func SeedDatabase(db *gorm.DB) error {
 	// Tenant'ları oluştur
 	tenants := []models.Tenant{
-		{Name: "Acme Corp"},
-		{Name: "TechStart Inc"},
-		{Name: "Global Solutions"},
+		{Name: "Beyaz Futbol", Slug: "beyaz-futbol"},
+		{Name: "Hell Kitchen", Slug: "hell-kitchen"},
+		{Name: "Mentalist", Slug: "mentalist"},
 	}
 
 	for i := range tenants {
@@ -46,11 +46,24 @@ func SeedDatabase(db *gorm.DB) error {
 }
 
 func createUsersForTenant(db *gorm.DB, tenant models.Tenant) []models.User {
-	userNames := []string{"john.doe", "jane.smith", "alex.wilson"}
+	var userNames []string
+
+	// Her tenant için farklı user isimleri
+	switch tenant.Name {
+	case "Beyaz Futbol":
+		userNames = []string{"sinan.engin", "ahmet.cakar", "ertem.sener"}
+	case "Hell Kitchen":
+		userNames = []string{"gordon.ramsay", "mehmet.yalcinkaya", "sofia.fehn"}
+	case "Mentalist":
+		userNames = []string{"patrick.jane", "kimball.cho", "teresa.lisbon"}
+	default:
+		userNames = []string{"john.doe", "jane.smith", "alex.wilson"}
+	}
+
 	users := make([]models.User, 0, len(userNames))
 
 	for _, userName := range userNames {
-		email := fmt.Sprintf("%s@%s.com", userName, slugify(tenant.Name))
+		email := fmt.Sprintf("%s@%s.com", userName, tenant.Slug)
 
 		user := models.User{
 			Email:    email,
@@ -72,75 +85,75 @@ func createAnnouncementsForTenant(tenant models.Tenant, users []models.User) []m
 	var announcements []models.Announcement
 
 	switch tenant.Name {
-	case "Acme Corp":
+	case "Beyaz Futbol":
 		announcements = []models.Announcement{
 			{
-				Title:     "Welcome to Acme Corp!",
-				Content:   "We're thrilled to welcome all team members to Acme Corp. Our mission is to deliver innovative solutions that transform businesses. Let's make this quarter our best one yet!",
+				Title:     "Yeni Sezon Başlıyor!",
+				Content:   "Sevgili futbolseverler, yeni sezonda da sizlerle birlikte olmaktan mutluluk duyuyoruz. Bu sezon çok özel analizler ve sıcak tartışmalarla dolu bir sezon olacak. Heyecanla bekliyoruz!",
 				CreatedAt: time.Now().Add(-72 * time.Hour),
 				UserId:    users[0].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "Q4 Company All-Hands Meeting",
-				Content:   "Join us this Friday at 2 PM for our quarterly all-hands meeting. We'll be discussing our achievements, upcoming projects, and celebrating our team's success. Pizza and refreshments will be provided!",
+				Title:     "Özel Canlı Yayın Duyurusu",
+				Content:   "Bu hafta Cumartesi akşamı 20:00'de özel bir canlı yayınımız var! Haftanın maçlarını değerlendireceğiz ve sürpriz konuklarımız olacak. Kaçırmayın!",
 				CreatedAt: time.Now().Add(-48 * time.Hour),
 				UserId:    users[1].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "New Office Security Protocols",
-				Content:   "Effective immediately, all employees must use their access badges to enter the building. Please ensure you have your badge with you at all times. Contact HR if you need a replacement.",
+				Title:     "Ağaca Sormuşlar",
+				Content:   "Kökü benden de ondan demiş. Abi dediğim adam yaptı bana bunu yaptı. Bana bi üç beş dakika müsaade edin çocuklar.",
 				CreatedAt: time.Now().Add(-24 * time.Hour),
 				UserId:    users[2].Id,
 				TenantId:  tenant.Id,
 			},
 		}
 
-	case "TechStart Inc":
+	case "Hell Kitchen":
 		announcements = []models.Announcement{
 			{
-				Title:     "TechStart Inc Holiday Schedule",
-				Content:   "Our offices will be closed from December 24th through January 2nd for the holiday season. Emergency support will be available via email. Wishing everyone a wonderful holiday!",
+				Title:     "New Season Auditions Open!",
+				Content:   "We're looking for the best chefs to compete in the next season of Hell's Kitchen! If you think you have what it takes to handle the heat, apply now. Gordon is waiting!",
 				CreatedAt: time.Now().Add(-96 * time.Hour),
 				UserId:    users[0].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "Launch of New Product Development Initiative",
-				Content:   "We're excited to announce our new product development initiative! This strategic move will position us as industry leaders. All departments are encouraged to submit innovative ideas through the company portal.",
+				Title:     "Michelin Yıldızlı Menü Hazırlığı",
+				Content:   "Bu hafta mutfağımızda Michelin yıldızlı özel bir menü hazırlayacağız. Yarışmacılar en üst düzey tekniklerle test edilecek. Hazır olun!",
 				CreatedAt: time.Now().Add(-60 * time.Hour),
 				UserId:    users[1].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "Team Building Event Next Month",
-				Content:   "Mark your calendars! We're organizing a team building retreat next month at Mountain View Resort. Activities include hiking, workshops, and networking sessions. RSVP by end of week.",
+				Title:     "Restaurant Service Challenge",
+				Content:   "Next episode features our famous restaurant service challenge. Both teams will serve real customers under intense pressure. Remember: perfection is the only acceptable standard!",
 				CreatedAt: time.Now().Add(-12 * time.Hour),
 				UserId:    users[2].Id,
 				TenantId:  tenant.Id,
 			},
 		}
 
-	case "Global Solutions":
+	case "Mentalist":
 		announcements = []models.Announcement{
 			{
-				Title:     "Global Solutions Expands to Three New Markets",
-				Content:   "We're proud to announce our expansion into Asia, South America, and Africa! This milestone represents years of hard work and dedication. Thank you to everyone who made this possible.",
+				Title:     "New Case: The Red John Investigation",
+				Content:   "CBI has reopened several cold cases connected to Red John. Patrick Jane will be leading the investigation with his unique methods. All team members report to briefing room at 0800 hours.",
 				CreatedAt: time.Now().Add(-120 * time.Hour),
 				UserId:    users[0].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "Mandatory Cybersecurity Training",
-				Content:   "All employees must complete the cybersecurity awareness training by end of month. This training covers phishing detection, password security, and data protection. Access the course through our learning portal.",
+				Title:     "Mandatory Interrogation Training",
+				Content:   "All agents must complete the advanced interrogation techniques course by end of month. Agent Cho will be conducting the sessions. Psychological profiling techniques will be covered.",
 				CreatedAt: time.Now().Add(-36 * time.Hour),
 				UserId:    users[1].Id,
 				TenantId:  tenant.Id,
 			},
 			{
-				Title:     "Employee Wellness Program Launch",
-				Content:   "We're launching a comprehensive wellness program including gym memberships, mental health resources, and flexible work arrangements. Visit the HR portal to learn more and sign up for benefits.",
+				Title:     "Field Operation Protocol Update",
+				Content:   "New protocols for field operations are now in effect. Agent Lisbon has updated all team procedures. Please review the documentation and sign off by Friday. Safety first.",
 				CreatedAt: time.Now().Add(-6 * time.Hour),
 				UserId:    users[2].Id,
 				TenantId:  tenant.Id,
@@ -149,21 +162,6 @@ func createAnnouncementsForTenant(tenant models.Tenant, users []models.User) []m
 	}
 
 	return announcements
-}
-
-func slugify(s string) string {
-	result := ""
-	for _, char := range s {
-		if char == ' ' {
-			continue
-		}
-		if char >= 'A' && char <= 'Z' {
-			result += string(char + 32)
-		} else {
-			result += string(char)
-		}
-	}
-	return result
 }
 
 func usernameToName(username string) string {

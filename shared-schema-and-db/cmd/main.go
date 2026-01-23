@@ -33,8 +33,9 @@ func main() {
 
 	userRepo := repositories.NewUserRepository(db)
 	announcementRepo := repositories.NewAnnouncementRepository(db)
+	tenantRepo := repositories.NewTenantRepository(db)
 
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, tenantRepo)
 	announcementService := service.NewAnnouncementService(announcementRepo)
 
 	authHandler := api.NewAuthHandler(authService)

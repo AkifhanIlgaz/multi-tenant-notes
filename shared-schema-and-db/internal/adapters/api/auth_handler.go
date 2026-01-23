@@ -19,6 +19,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 	var req struct {
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required,min=8,max=100"`
+		Tenant   string `json:"tenant" validate:"required"`
 	}
 
 	if err := c.Bind().Body(&req); err != nil {
@@ -27,7 +28,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.authService.Login(req.Email, req.Password)
+	user, err := h.authService.Login(req.Email, req.Password, req.Tenant)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": err.Error(),

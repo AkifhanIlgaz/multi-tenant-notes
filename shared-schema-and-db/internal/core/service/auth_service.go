@@ -9,21 +9,28 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-const JWT_SECRET = "your_jwt_secret"
+const JWT_SECRET = "istikrarli_hayal_hakikattir"
 const JWT_EXPIRATION = time.Hour * 24
 
 type AuthService struct {
-	userRepo ports.UserRepository
+	userRepo   ports.UserRepository
+	tenantRepo ports.TenantRepository
 }
 
-func NewAuthService(userRepo ports.UserRepository) *AuthService {
+func NewAuthService(userRepo ports.UserRepository, tenantRepo ports.TenantRepository) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
+		userRepo:   userRepo,
+		tenantRepo: tenantRepo,
 	}
 }
 
-func (s *AuthService) Login(email, password string) (models.User, error) {
-	user, err := s.userRepo.GetUserByEmailAndPassword(email, password)
+func (s *AuthService) Login(email, password string, tenantSlug string) (models.User, error) {
+	tenant, err := s.tenantRepo.GetTenantBySlug(tenantSlug)
+	if err != nil {
+		return models.User{}, errors.New("invalid tenant")
+	}
+
+	user, err := s.userRepo.GetUserByEmailAndPassword(email, password, tenant.Id)
 	if err != nil {
 		return models.User{}, errors.New("invalid credentials")
 	}

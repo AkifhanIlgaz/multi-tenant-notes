@@ -16,8 +16,8 @@ func RunMigrations(db *gorm.DB) error {
 
 func DropTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.Tenant{},
 		&models.Announcement{},
 		&models.User{},
-		&models.Tenant{},
 	)
 }
