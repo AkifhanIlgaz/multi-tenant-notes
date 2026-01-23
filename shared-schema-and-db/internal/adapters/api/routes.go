@@ -34,7 +34,7 @@ func (r *Router) SetupRoutes() {
 	// Protected routes
 	protected := api.Group("/", r.authMiddleware.JWTMiddleware())
 
-	notes := protected.Group("/notes")
+	notes := protected.Group("/announcements")
 
 	notes.Get("", r.announcementHandler.GetAnnouncementsOfTenant)
 	notes.Post("", r.announcementHandler.CreateAnnouncement)

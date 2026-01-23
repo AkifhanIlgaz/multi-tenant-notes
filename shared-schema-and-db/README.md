@@ -103,7 +103,7 @@ All announcement endpoints require JWT authentication via `Authorization: Bearer
 #### Get All Announcements
 
 ```http
-GET /api/notes
+GET /api/announcements
 Authorization: Bearer <token>
 ```
 
@@ -126,7 +126,7 @@ Authorization: Bearer <token>
 #### Create Announcement
 
 ```http
-POST /api/notes
+POST /api/announcements
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -154,7 +154,7 @@ Content-Type: application/json
 #### Delete Announcement
 
 ```http
-DELETE /api/notes/:id
+DELETE /api/announcements/:id
 Authorization: Bearer <token>
 ```
 
