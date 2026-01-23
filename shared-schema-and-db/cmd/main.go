@@ -4,8 +4,7 @@ import (
 	"log"
 
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/handler"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/middleware"
+
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db"
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db/config"
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/db/migrations"
@@ -33,16 +32,20 @@ func main() {
 	}
 
 	userRepo := repositories.NewUserRepository(db)
+	announcementRepo := repositories.NewAnnouncementRepository(db)
 
 	authService := service.NewAuthService(userRepo)
+	announcementService := service.NewAnnouncementService(announcementRepo)
 
-	authHandler := handler.NewAuthHandler(authService)
+	authHandler := api.NewAuthHandler(authService)
+	announcementHandler := api.NewAnnouncementHandler(announcementService)
 
-	authMiddleware := middleware.NewAuthMiddleware(authService)
+	authMiddleware := api.NewAuthMiddleware(authService)
 
 	app := fiber.New()
 
-	api.SetupRoutes(app, authHandler, authMiddleware)
+	router := api.NewRouter(app, authHandler, announcementHandler, authMiddleware)
+	router.SetupRoutes()
 
 	log.Println("Server starting on :3000")
 	if err := app.Listen(":3000"); err != nil {

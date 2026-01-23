@@ -1,29 +1,42 @@
 package api
 
 import (
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/handler"
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/middleware"
 	"github.com/gofiber/fiber/v3"
 )
 
-func SetupRoutes(app *fiber.App, authHandler *handler.AuthHandler, authMiddleware *middleware.AuthMiddleware) {
-	api := app.Group("/api")
+type Router struct {
+	app                 *fiber.App
+	authHandler         *AuthHandler
+	announcementHandler *AnnouncementHandler
+	authMiddleware      *AuthMiddleware
+}
+
+func NewRouter(app *fiber.App, authHandler *AuthHandler, announcementHandler *AnnouncementHandler, authMiddleware *AuthMiddleware) *Router {
+	return &Router{
+		app:                 app,
+		authHandler:         authHandler,
+		announcementHandler: announcementHandler,
+		authMiddleware:      authMiddleware,
+	}
+}
+
+func (r *Router) SetupRoutes() {
+	r.app.Get("/health", func(c fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
+	api := r.app.Group("/api")
 
 	// Public routes
 	auth := api.Group("/auth")
-	auth.Post("/login", authHandler.Login)
+	auth.Post("/login", r.authHandler.Login)
 
 	// Protected routes
-	protected := api.Group("/", authMiddleware.JWTMiddleware())
-	protected.Get("/me", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"user_id":   middleware.GetUserID(c),
-			"tenant_id": middleware.GetTenantID(c),
-		})
-	})
+	protected := api.Group("/", r.authMiddleware.JWTMiddleware())
 
-	// Health check
-	app.Get("/health", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
-	})
+	notes := protected.Group("/notes")
+
+	notes.Get("", r.announcementHandler.GetAnnouncementsOfTenant)
+	notes.Post("", r.announcementHandler.CreateAnnouncement)
+	notes.Delete("/:id", r.announcementHandler.DeleteAnnouncement)
 }

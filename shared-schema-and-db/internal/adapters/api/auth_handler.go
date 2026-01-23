@@ -1,7 +1,6 @@
-package handler
+package api
 
 import (
-	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/adapters/api/dto"
 	"github.com/AkifhanIlgaz/shared-schema-and-db/internal/core/service"
 	"github.com/gofiber/fiber/v3"
 )
@@ -17,7 +16,10 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 func (h *AuthHandler) Login(c fiber.Ctx) error {
-	var req dto.LoginRequest
+	var req struct {
+		Email    string `json:"email" validate:"required,email"`
+		Password string `json:"password" validate:"required,min=8,max=100"`
+	}
 
 	if err := c.Bind().Body(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -39,15 +41,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		})
 	}
 
-	response := dto.LoginResponse{
-		Token: token,
-		User: dto.UserResponse{
-			ID:       user.Id,
-			Email:    user.Email,
-			Name:     user.Name,
-			TenantID: user.TenantId,
-		},
-	}
-
-	return c.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"token": token,
+	})
 }
