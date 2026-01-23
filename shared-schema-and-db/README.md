@@ -77,6 +77,7 @@ GET /health
 ### Authentication
 
 #### Login
+You can use one of the test users defined at the end of this document.
 
 ```http
 POST /api/auth/login
