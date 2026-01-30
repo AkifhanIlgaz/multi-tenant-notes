@@ -1,39 +1,5 @@
 # Multi-Tenant Notes API — Separate Schema Approach
 
-A Go-based multi-tenant notes/announcements API implementing the Separate Schema multi-tenancy pattern using PostgreSQL, Fiber v3, and GORM.
-
-## 🎯 Overview
-
-This project demonstrates a multi-tenant application where multiple organizations (tenants) share the same database but have isolated schemas. Each tenant gets its own PostgreSQL schema (e.g., `beyaz-futbol`), and application code sets the schema per request to ensure strict data isolation.
-
-### Separate Schema Pattern
-
-This implementation uses the Separate Schema approach where:
-
-- Single Database: All tenants share one database instance
-- Separate Schemas: Each tenant has its own schema with the same set of tables
-- Schema Routing: The application sets `search_path` dynamically per request
-- Strong Isolation: Data is isolated at the schema level
-
-Pros:
-- Stronger isolation than shared tables
-- Easier to enforce tenant-specific constraints
-- Safer migrations (can target per tenant)
-
-Cons:
-- More complex routing and connection management
-- Schema proliferation (many schemas to maintain)
-- Migrations must be schema-aware
-
-## ✨ Features
-
-- Separate schema per tenant (e.g., `<slug>`)
-- JWT-based authentication with tenant-awareness
-- Announcement/Notes management per tenant
-- Per-request schema selection via transaction wrapper
-- RESTful API with Fiber v3
-- Migrations and seed data per tenant
-- Hexagonal architecture (Ports & Adapters)
 
 ## 📦 Project Structure
 
@@ -50,36 +16,8 @@ Key directories and responsibilities:
     - `migrations/`: Schema creation and auto-migrate logic
     - `repositories/`: GORM repositories using per-request schema routing
 
-## 🚀 Getting Started
-
-1. Clone the repository:
-   - `git clone <repository-url>`
-
-2. Start PostgreSQL:
-   - `docker compose up -d`
-
-3. Run the application:
-   - `cd shared-db-separate-schema`
-   - `go run cmd/main.go`
-
-Server starts at `http://localhost:3000`.
-
-## 🗄 Database and Schemas
 
 
-
-Tables inside each tenant schema:
-- `users`
-- `announcements`
-
-Migrations logic:
-- Create schema if not exists: `CREATE SCHEMA IF NOT EXISTS tenant_<slug>`
-- Set schema for operations: `SET search_path TO tenant_<slug>`
-- Run `AutoMigrate` for `users` and `announcements` inside that schema
-
-Seeding logic:
-- Before inserting tenant-specific data (users, announcements), set `search_path` to the tenant schema
-- Use distinct demo users per tenant
 
 
 ## 📡 API Endpoints
